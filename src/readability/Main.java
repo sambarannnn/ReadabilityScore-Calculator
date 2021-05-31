@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class ReadabilityEngine {
     private String text = "";
@@ -52,7 +55,7 @@ class ReadabilityEngine {
     private String readFileAsString(String fileName) throws IOException {
         return new String(Files.readAllBytes(Paths.get(fileName)));
     }
-    //for each word
+    /*
     private int syllable_counter(String s) {
         LinkedList<Integer> vowels=new LinkedList<>();
         for(int i = 0; i < s.length(); i++) {
@@ -69,6 +72,23 @@ class ReadabilityEngine {
             return 1;
         else
             return vowels.size();
+    }
+     */
+    //for each word
+    private int syllable_counter(String word) {
+        ArrayList<String> tokens = new ArrayList<String>();
+        String regexp = "[bcdfghjklmnpqrstvwxz]*[aeiouy]+[bcdfghjklmnpqrstvwxz]*";
+        Pattern p = Pattern.compile(regexp);
+        Matcher m = p.matcher(word.toLowerCase());
+
+        while (m.find()) {
+            tokens.add(m.group());
+        }
+
+        //check if e is at last and e is not the only vowel or not
+        if( tokens.size() > 1 && tokens.get(tokens.size()-1).equals("e")  )
+            return tokens.size()-1; // e is at last and not the only vowel so total syllable -1
+        return tokens.size();
     }
 
     private int FindAge(double score) {
@@ -142,7 +162,7 @@ class ReadabilityEngine {
             words = sentence.split("[ ]+");
             for (String word : words) {
                 syllable_count += syllable_counter(word);
-                if(syllable_count > 2)
+                if(syllable_counter(word) > 2)
                     polysyllable_count++;
                 char_count += word.length();
             }
